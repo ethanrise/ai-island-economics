@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import re
 import markdown
 from weasyprint import HTML
 
@@ -54,7 +53,6 @@ body { font-family:"Noto Serif CJK SC","Noto Serif CJK JP",serif; color:#222; }
 .chapter hr { border:0; width:14mm; border-top:1px solid #b9ad9a; margin:9mm auto; }
 .chapter strong { font-weight:700; }
 .epilogue h1 { font-size:24pt; }
-.version-mark { position:fixed; right:7mm; bottom:5mm; font:6.5pt "Noto Sans CJK SC"; color:#bbb; }
 '''
 
 def split_title(md_text: str):
@@ -111,7 +109,7 @@ for n, title, body in entries:
     cls = 'chapter epilogue' if n == 30 else 'chapter'
     html.append(f'<section class="{cls}" id="chapter-{n}"><div class="chapter-no">{label}</div><h1>{title}</h1>{body_html}</section>')
 
-html.append('<div class="version-mark">V0.1 · 2026.09</div></body></html>')
+html.append('</body></html>')
 OUT.parent.mkdir(parents=True, exist_ok=True)
 HTML(string=''.join(html), base_url=str(ROOT)).write_pdf(str(OUT))
 print(OUT)
