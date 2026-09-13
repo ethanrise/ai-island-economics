@@ -8,6 +8,14 @@ on:
       - 'book-pages/**'
       - 'tools/book/**'
       - '.github/workflows/build-book-pdf.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'chapters/**'
+      - 'book-pages/**'
+      - 'tools/book/**'
+      - '.github/workflows/build-book-pdf.yml'
+      - 'release/v0.1/build-trigger.txt'
   workflow_dispatch:
 
 permissions:
@@ -43,6 +51,7 @@ jobs:
           if-no-files-found: error
 
       - name: Commit generated PDF
+        if: github.event_name == 'push'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
