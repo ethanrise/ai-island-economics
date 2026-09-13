@@ -1,4 +1,4 @@
-name: Build V0.1 Book PDF
+name: Build V0.1 Book Files
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Chinese fonts and PDF dependencies
+      - name: Install book dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y fonts-noto-cjk libpango-1.0-0 libpangoft2-1.0-0
@@ -43,22 +43,27 @@ jobs:
       - name: Build PDF
         run: python tools/book/build_pdf.py
 
-      - name: Upload PDF artifact
+      - name: Build EPUB
+        run: python tools/book/build_epub.py
+
+      - name: Upload book artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ai-island-economics-v0.1
-          path: release/v0.1/AI时代的小岛经济学-V0.1.pdf
+          path: |
+            release/v0.1/AI时代的小岛经济学-V0.1.pdf
+            release/v0.1/AI时代的小岛经济学-V0.1.epub
           if-no-files-found: error
 
-      - name: Commit generated PDF
+      - name: Commit generated book files
         if: github.event_name == 'push'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add 'release/v0.1/AI时代的小岛经济学-V0.1.pdf'
+          git add 'release/v0.1/AI时代的小岛经济学-V0.1.pdf' 'release/v0.1/AI时代的小岛经济学-V0.1.epub'
           if git diff --cached --quiet; then
-            echo 'PDF unchanged'
+            echo 'Book files unchanged'
           else
-            git commit -m 'Build V0.1 formatted PDF'
+            git commit -m 'Build V0.1 PDF and EPUB'
             git push
           fi
