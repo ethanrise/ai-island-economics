@@ -1,0 +1,55 @@
+name: Build V0.1 Book PDF
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'chapters/**'
+      - 'book-pages/**'
+      - 'tools/book/**'
+      - '.github/workflows/build-book-pdf.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Chinese fonts and PDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk libpango-1.0-0 libpangoft2-1.0-0
+          python -m pip install --upgrade pip
+          pip install markdown weasyprint
+
+      - name: Build PDF
+        run: python tools/book/build_pdf.py
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-island-economics-v0.1
+          path: release/v0.1/AI时代的小岛经济学-V0.1.pdf
+          if-no-files-found: error
+
+      - name: Commit generated PDF
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 'release/v0.1/AI时代的小岛经济学-V0.1.pdf'
+          if git diff --cached --quiet; then
+            echo 'PDF unchanged'
+          else
+            git commit -m 'Build V0.1 formatted PDF'
+            git push
+          fi
